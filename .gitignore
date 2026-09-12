@@ -1,0 +1,4 @@
+/auth-service/target/
+/api-gateway/target/
+/common-shared/target/
+/discovery-server/target/
