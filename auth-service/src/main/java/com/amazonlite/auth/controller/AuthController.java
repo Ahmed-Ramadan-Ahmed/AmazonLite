@@ -1,6 +1,6 @@
 package com.amazonlite.auth.controller;
 
-import com.amazonlite.auth.dto.RegisterRequest;
+import com.amazonlite.auth.dto.*;
 import com.amazonlite.auth.service.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,5 +21,10 @@ public class AuthController {
     public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest request) {
         String responseMessage = authenticationService.register(request);
         return ResponseEntity.ok(responseMessage);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok(authenticationService.login(request));
     }
 }

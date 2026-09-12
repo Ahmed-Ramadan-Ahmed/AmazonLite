@@ -1,5 +1,6 @@
 package com.amazonlite.auth.service;
 
+import com.amazonlite.auth.dto.*;
 import com.amazonlite.auth.dto.RegisterRequest;
 import com.amazonlite.auth.entity.Customer;
 import com.amazonlite.auth.entity.Role;
@@ -9,6 +10,8 @@ import com.amazonlite.auth.repository.CustomerRepository;
 import com.amazonlite.auth.repository.SellerRepository;
 import com.amazonlite.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +24,8 @@ public class AuthenticationService {
     private final CustomerRepository customerRepository;
     private final SellerRepository sellerRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     @Transactional
     public String register(RegisterRequest request) {
@@ -38,6 +43,29 @@ public class AuthenticationService {
         } else {
             throw new IllegalArgumentException("Invalid role for registration.");
         }
+    }
+
+    public AuthResponse login(LoginRequest request) {
+        // This will automatically verify the password and throw an exception if it's wrong
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
+
+        // If we reach this line, the user is fully authenticated
+        var user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password."));
+
+        var accessToken = jwtService.generateAccessToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
+
+        return AuthResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .role(user.getRole().name())
+                .build();
     }
 
     private void registerCustomer(RegisterRequest request) {
