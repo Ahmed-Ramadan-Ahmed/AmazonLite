@@ -39,6 +39,7 @@ amazon-lite/
 ├── order-service/       # Order processing and Saga orchestrator
 ├── docker-compose.yml   # Local infrastructure definition
 └── pom.xml              # Root Maven POM
+```
 
 ## 🚀 Getting Started
 
