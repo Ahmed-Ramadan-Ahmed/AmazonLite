@@ -1,32 +1,36 @@
-# AmazonLite Microservices Platform
+# 🛒 AmazonLite Microservices Platform
 
-AmazonLite is a high-performance, production-ready, multi-vendor e-commerce platform. It is built on a Java-based microservices architecture, emphasizing clean code, domain-driven design, security, and extreme scalability.
+[![Java](https://img.shields.io/badge/Java-17-orange?logo=openjdk)](https://openjdk.org/)
+[![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![Spring Cloud](https://img.shields.io/badge/Spring_Cloud-Gateway_&_Eureka-6DB33F?logo=spring&logoColor=white)](https://spring.io/projects/spring-cloud)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-ACID_Writes-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Fast_Reads-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Redis](https://img.shields.io/badge/Redis-Refresh_Tokens-DC382D?logo=redis&logoColor=white)](https://redis.io/)
+[![Apache Kafka](https://img.shields.io/badge/Apache_Kafka-KRaft_Mode-231F20?logo=apachekafka&logoColor=white)](https://kafka.apache.org/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
+[![JWT](https://img.shields.io/badge/JWT-Stateless_Auth-black?logo=JSON%20web%20tokens)](https://jwt.io/)
 
-## 🏗 Architecture Overview
+AmazonLite is a high-performance, production-ready, AI-native multi-vendor e-commerce platform. Built on a Java-based microservices architecture, it emphasizes clean code, domain-driven design, zero-trust security, and horizontal scalability.
 
-The system is designed to handle high-throughput e-commerce operations using modern distributed system patterns:
+---
 
-* **API Gateway Offloading:** Centralized JWT validation at the Spring Cloud Gateway layer. The gateway verifies the token and propagates user identity downstream via clean HTTP headers (`X-Auth-User-Id`, `X-Auth-Role`), keeping microservices stateless and unaware of cryptography.
-* **CQRS (Command Query Responsibility Segregation):** The Product Catalog uses PostgreSQL for strict transactional writes (Command) and MongoDB for blazing-fast flexible reads (Query), synchronized in real-time via Apache Kafka events.
-* **Database per Service:** Strict domain isolation. Each microservice manages its own data store.
-* **JOINED Inheritance Strategy:** The Authentication service uses JPA Joined Inheritance to separate Identity (`users` table) from Behavior (`customers`, `sellers`, `admins` tables), allowing strict referential integrity without sparse NULL columns.
-* **Stateless Auth with Revocation:** JWT-based authentication paired with a Redis-backed refresh token store, allowing instant token revocation without relying on database-heavy session management.
-* **Saga Pattern (Orchestration):** *[In Progress]* Distributed transactions across Order, Inventory, and Payment services managed via Kafka messaging to handle cross-service rollbacks (Compensating Transactions).
+## 🏗 Architecture & Core Patterns
 
-## 🛠 Tech Stack
+The system is engineered to handle high-throughput e-commerce operations using modern distributed system patterns:
 
-* **Language:** Java 17
-* **Framework:** Spring Boot 3.x, Spring Cloud (Eureka, Gateway)
-* **Relational Database:** PostgreSQL (Auth Service, Product Command, Order Service)
-* **NoSQL Database:** MongoDB (Product Query)
-* **Caching & Tokens:** Redis (Refresh Tokens)
-* **Message Broker:** Apache Kafka (KRaft mode)
-* **Build Tool:** Maven (Multi-module Monorepo)
-* **Containerization:** Docker & Docker Compose
-* **API Documentation:** OpenAPI 3 / Swagger UI
+* **API Gateway Offloading:** Centralized JWT validation at the Spring Cloud Gateway layer. The gateway verifies the cryptographic signature and propagates user identity downstream via sanitized HTTP headers (`X-Auth-User-Id`, `X-Auth-Role`).
+* **CQRS (Command Query Responsibility Segregation):** The Product Catalog uses **PostgreSQL** for strict transactional writes and **MongoDB** for blazing-fast flexible reads, synchronized in real-time via **Apache Kafka** events.
+* **Saga Pattern (Orchestration):** Distributed transactions across Order, Inventory, and Payment services managed via Kafka messaging to handle multi-database rollbacks (Compensating Transactions).
+* **JOINED Inheritance Strategy:** The Authentication service uses JPA Joined Inheritance to separate Identity (`users`) from Behavior (`customers`, `sellers`, `admins`), ensuring strict referential integrity.
+* **Stateless Auth with Revocation:** JWT-based authentication paired with a Redis-backed refresh token store, enabling instant token revocation without relying on database-heavy session management.
+* **Anti-Spoofing Security:** Strict Gateway Route Validation prevents malicious header injection from external clients.
+
+---
 
 ## 📁 Project Structure
 
+```text
+amazon-lite/
 ├── common-shared/       # Universal dictionary: DTOs, Kafka Events, global enums
 ├── discovery-server/    # Netflix Eureka: Service registry and discovery
 ├── api-gateway/         # Spring Cloud Gateway: Routing and JWT security filter
